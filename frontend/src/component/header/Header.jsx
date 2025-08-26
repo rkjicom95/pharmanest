@@ -3,32 +3,40 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 import { BsCartPlus } from "react-icons/bs";
 import { FaUserCircle, FaBars, FaTimes } from "react-icons/fa";
 import Logo from "/assets/logo1.png";
-import { useSelector, useDispatch } from "react-redux";
-import { logout } from "../../features/auth/authSlice";
+import { clearAuthData, getAuthData } from "../../utils/localStorage";
+import { showSuccess } from "../../utils/toastMessage";
 
 const Header = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const { isAuthenticated } = useSelector((state) => state.auth);
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [mobileProfileOpen, setMobileProfileOpen] = useState(false);
 
+  // User info from localStorage
+  const auth = getAuthData();
+  const isAuthenticated = Boolean(auth?.token);
+
+  // Link styling
   const linkClass = ({ isActive }) =>
     isActive
       ? "relative text-teal-700 font-semibold after:content-[''] after:block after:h-[2px] after:w-full after:bg-teal-700 after:mt-1"
       : "relative hover:text-teal-700";
 
+  // Logout handler
+  const handleLogout = () => {
+    clearAuthData();
+    showSuccess("You have logged out successfully 👋");
+    navigate("/login");
+  };
+
   return (
     <nav className="flex items-center justify-between bg-white shadow-md px-6 py-3 relative">
       {/* Logo */}
-      <div className="flex items-center gap-2">
-        <Link to="/">
-          <img src={Logo} alt="PharmaNest Logo" className="h-10 w-18" />
-        </Link>
-      </div>
+      <Link to="/" className="flex items-center gap-2">
+        <img src={Logo} alt="PharmaNest Logo" className="h-10 w-18" />
+      </Link>
 
-      {/* Desktop NavLinks */}
+      {/* Desktop Links */}
       <div className="hidden md:flex gap-6 font-medium text-gray-700">
         <NavLink to="/" className={linkClass}>
           Home
@@ -47,7 +55,7 @@ const Header = () => {
         </NavLink>
       </div>
 
-      {/* Desktop Search Bar */}
+      {/* Search Bar (Desktop only) */}
       <div className="hidden md:flex items-center border rounded-lg overflow-hidden">
         <input
           type="text"
@@ -57,21 +65,23 @@ const Header = () => {
         <button className="bg-teal-700 text-white px-4 py-2">Search</button>
       </div>
 
-      {/* Cart & Auth */}
+      {/* Cart + Auth */}
       <div className="flex items-center gap-4 ml-4">
+        {/* Cart */}
         <Link to="/cart" className="flex items-center gap-1">
           <BsCartPlus size={18} />
           <h4 className="text-gray-700 font-medium hidden md:block">Cart</h4>
         </Link>
 
+        {/* Auth Check */}
         {isAuthenticated ? (
           <>
-            {/* Desktop Only */}
-            <div className="hidden md:block">
-              <Link to="/myorder">My Orders</Link>
-            </div>
+            {/* My Orders (Desktop) */}
+            <Link to="/myorder" className="hidden md:block">
+              My Orders
+            </Link>
 
-            {/* Desktop Profile Dropdown */}
+            {/* Profile Dropdown (Desktop) */}
             <div className="relative group hidden md:block">
               <button className="flex items-center text-teal-700 text-3xl hover:text-teal-800">
                 <FaUserCircle />
@@ -90,7 +100,7 @@ const Header = () => {
                   Settings
                 </button>
                 <button
-                  onClick={() => dispatch(logout())}
+                  onClick={handleLogout}
                   className="block w-full text-left px-4 py-2 text-red-600 hover:bg-red-100"
                 >
                   Logout
@@ -115,7 +125,7 @@ const Header = () => {
           </div>
         )}
 
-        {/* Mobile Toggle */}
+        {/* Mobile Menu Toggle */}
         <button
           className="md:hidden text-2xl text-teal-700"
           onClick={() => setMenuOpen(!menuOpen)}
@@ -128,7 +138,7 @@ const Header = () => {
       {menuOpen && (
         <div className="fixed inset-0 bg-gray-100 bg-opacity-40 z-50 flex">
           <div className="bg-white w-3/4 h-full p-6 flex flex-col gap-4 relative">
-            {/* Close Button */}
+            {/* Close */}
             <button
               onClick={() => setMenuOpen(false)}
               className="absolute top-4 right-4 text-gray-600 hover:text-red-600 text-2xl"
@@ -136,7 +146,7 @@ const Header = () => {
               ✕
             </button>
 
-            {/* Mobile Search */}
+            {/* Search (Mobile) */}
             <div className="flex items-center border rounded-lg overflow-hidden mb-4 mt-8">
               <input
                 type="text"
@@ -148,7 +158,7 @@ const Header = () => {
               </button>
             </div>
 
-            {/* Links */}
+            {/* Nav Links */}
             <NavLink
               to="/"
               className={linkClass}
@@ -185,14 +195,14 @@ const Header = () => {
               Contact
             </NavLink>
 
-            {/* Mobile Profile Section */}
+            {/* Mobile Profile */}
             {isAuthenticated ? (
               <div className="mt-4">
                 <button
                   onClick={() => setMobileProfileOpen(!mobileProfileOpen)}
                   className="flex items-center gap-2 w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100"
                 >
-                  <FaUserCircle className="text-xl" /> Account
+                  <FaUserCircle className="text-xl" /> {auth?.name || "Account"}
                 </button>
 
                 {mobileProfileOpen && (
@@ -216,10 +226,7 @@ const Header = () => {
                       Settings
                     </button>
                     <button
-                      onClick={() => {
-                        dispatch(logout());
-                        setMenuOpen(false);
-                      }}
+                      onClick={handleLogout}
                       className="w-full text-left px-4 py-2 rounded-lg text-red-600 hover:bg-red-100"
                     >
                       Logout
@@ -251,7 +258,7 @@ const Header = () => {
             )}
           </div>
 
-          {/* Close on outside click */}
+          {/* Overlay click */}
           <div className="flex-1" onClick={() => setMenuOpen(false)}></div>
         </div>
       )}

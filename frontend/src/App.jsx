@@ -14,10 +14,13 @@ import MainLayout from "./layouts/MainLayout";
 import AuthLayout from "./layouts/AuthLayout";
 import ForgotPassword from "./authUI/forgotPassword/ForgotPassword";
 import ResetPassword from "./authUI/resetPassword/ResetPassword";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const App = () => {
   return (
     <BrowserRouter>
+      <ToastContainer />
       <Routes>
         {/* ✅ Main Layout Routes */}
         <Route element={<MainLayout />}>
