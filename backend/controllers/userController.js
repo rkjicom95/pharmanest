@@ -5,7 +5,6 @@ import { OAuth2Client } from "google-auth-library";
 import crypto from "crypto";
 import nodemailer from "nodemailer";
 
-
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // Register a new user
