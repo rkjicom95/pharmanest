@@ -23,10 +23,10 @@ const userSchema = mongoose.Schema(
       required: true,
       default: false,
     },
-    resetPasswordToken: {
+    resetToken: {
       type: String,
     },
-    resetPasswordExpires: {
+    resetTokenExpiry: {
       type: Date,
     },
   },

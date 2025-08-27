@@ -73,7 +73,7 @@ export const loginUser = async (req, res) => {
   }
 };
 
-// ---------------------- GOOGLE LOGIN ----------------------
+//  GOOGLE LOGIN
 export const googleLogin = async (req, res) => {
   try {
     const { idToken } = req.body; // 👈 FIXED: ab idToken expect karega, accessToken nahi
@@ -120,5 +120,90 @@ export const googleLogin = async (req, res) => {
       message: "Google login failed",
       error: error.message,
     });
+  }
+};
+
+export const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    // Check if user exists
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Generate reset token
+    const resetToken = crypto.randomBytes(20).toString("hex");
+    user.resetToken = resetToken;
+    user.resetTokenExpiry = Date.now() + 3600000; // token valid for 1 hour
+    console.log("Generated Token:", resetToken);
+    console.log("User before save:", user);
+    await user.save();
+    console.log("User after save:", await User.findById(user._id));
+
+    // Setup email transporter
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.MAIL_USER, // ✅ correct env variable
+        pass: process.env.MAIL_PASS, // ✅ correct env variable
+      },
+    });
+
+    // Email content
+    const resetUrl = `http://localhost:5173/resetPassword/${resetToken}`;
+    // const resetUrl = `http://localhost:5173/reset-password`;
+
+    const mailOptions = {
+      from: process.env.MAIL_USER,
+      to: email,
+      subject: "Password Reset",
+      text: `Click the following link to reset your password: ${resetUrl}`,
+    };
+
+    // Send email
+    await transporter.sendMail(mailOptions);
+
+    res.status(200).json({ message: "Password reset email sent" });
+  } catch (error) {
+    console.error("Forgot password error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const resetPassword = async (req, res) => {
+  try {
+    const { resetToken, newPassword } = req.body;
+
+    // Step 1: Find user with valid token
+    // const user = await User.findOne({
+    //   resetToken,
+    //   resetTokenExpiry: { $gt: Date.now() },
+    // });
+    // console.log("Matched user:", user);
+    console.log("Incoming resetToken:", resetToken);
+    const user = await User.findOne({ resetToken });
+    console.log("User by token only:", user);
+
+    if (!user) {
+      return res.status(400).json({ message: "Invalid or expired token" });
+    }
+
+    // Step 2: Hash new password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    // Step 3: Update user password and clear token
+    user.password = hashedPassword;
+    user.resetToken = undefined;
+    user.resetTokenExpiry = undefined;
+
+    await user.save();
+
+    res.status(200).json({ message: "Password reset successful" });
+  } catch (error) {
+    console.error("Reset password error:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };

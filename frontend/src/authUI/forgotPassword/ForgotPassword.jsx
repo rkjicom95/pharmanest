@@ -1,19 +1,49 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Logo from "/assets/logo1.png";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { forgotPassword } from "../../features/auth/authSlice";
+import { showError, showSuccess } from "../../utils/toastMessage";
 
 const ForgotPassword = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-  const handleForgotPassword = () => {
-    // abhi dummy user
-    // dispatch(login({ name: "Rohit Kumar", email: "rohit@test.com" }));
-    navigate("/reset-password");
+  // redux state
+  const { loading, forgotMessage, error } = useSelector((state) => state.auth);
+
+  const [formData, setFormData] = useState({
+    email: "",
+  });
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+  const handleForgotPassword = (e) => {
+    e.preventDefault();
+
+    if (!formData.email) {
+      showError("Please enter your email");
+      return;
+    }
+    dispatch(forgotPassword(formData));
+    setFormData({ email: "" });
+    showSuccess("Reset link sent");
+    // listen for response
+    useEffect(() => {
+      if (forgotMessage) {
+        showSuccess(forgotMessage); // server se message (e.g. "Reset link sent")
+        navigate("/reset-password");
+      }
+      if (error) {
+        showError("❌ " + error);
+      }
+    }, [forgotMessage, error, navigate]);
   };
   return (
     <div className="flex h-screen w-screen items-center justify-center bg-gray-100">
-      <div className="bg-white shadow-lg rounded-2xl p-8 m-4 w-full max-w-md">
+      <form className="bg-white shadow-lg rounded-2xl p-8 m-4 w-full max-w-md">
         {/* Logo */}
         <div className="flex justify-center mb-4">
           <img src={Logo} alt="logo" className="h-16" />
@@ -30,6 +60,9 @@ const ForgotPassword = () => {
           </label>
           <input
             type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
             placeholder="Enter your registered email"
             className="w-full border rounded-lg px-4 py-2 focus:ring-0 focus:ring-teal-700 outline-none"
           />
@@ -37,6 +70,7 @@ const ForgotPassword = () => {
 
         {/* Submit Button */}
         <button
+          type="submit"
           onClick={handleForgotPassword}
           className="w-full bg-teal-700 text-white py-2 rounded-lg font-medium hover:bg-teal-800 transition duration-200"
         >
@@ -53,7 +87,7 @@ const ForgotPassword = () => {
             Back to Login
           </Link>
         </p>
-      </div>
+      </form>
     </div>
   );
 };
