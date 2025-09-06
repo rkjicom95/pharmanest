@@ -21,23 +21,74 @@ export const registerUser = async (req, res) => {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Generate OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
     // Create new user
     const user = new User({
       name,
       email,
       password: hashedPassword,
+      otp,
+      otpExpiry: Date.now() + 10 * 60 * 1000, // 10 minutes
+      isVerified: false,
     });
 
     // Save user to database
     await user.save();
 
+    // Send OTP email
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.MAIL_USER,
+        pass: process.env.MAIL_PASS,
+      },
+    });
+    await transporter.sendMail({
+      from: process.env.MAIL_USER,
+      to: email,
+      subject: "Verify your account",
+      text: `Your OTP is ${otp}. It will expire in 10 minutes.`,
+    });
+
     res.status(201).json({
-      message: "User registered successfully",
+      message: "User registered. Please verify OTP sent to email.",
       success: true,
       data: user,
     });
   } catch (error) {
     console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Verify OTP
+export const verifyOtp = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    if (user.isVerified) {
+      return res.status(400).json({ message: "User already verified" });
+    }
+
+    if (user.otp !== otp || user.otpExpiry < Date.now()) {
+      return res.status(400).json({ message: "Invalid or expired OTP" });
+    }
+
+    user.isVerified = true;
+    user.otp = undefined;
+    user.otpExpiry = undefined;
+    await user.save();
+
+    res
+      .status(200)
+      .json({ success: true, message: "Email verified successfully" });
+  } catch (error) {
+    console.error("OTP verify error:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -99,6 +150,11 @@ export const googleLogin = async (req, res) => {
         googleId: sub,
         profilePic: picture,
       });
+    }
+    if (!user.isVerified) {
+      return res
+        .status(400)
+        .json({ message: "Please verify your email first" });
     }
 
     // Generate JWT token

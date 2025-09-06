@@ -5,13 +5,18 @@ import Footer from "../component/footer/Footer";
 
 const MainLayout = () => {
   return (
-    <>
-      <Header />
-      <main className="min-h-screen">
-        <Outlet /> {/* yaha page ka content render hoga */}
+    <div className="min-h-screen flex flex-col">
+      {/* Header */}
+      <Header className="" />
+
+      {/* Body */}
+      <main className="flex-1 mt-15">
+        <Outlet /> {/* Page ka content yaha render hoga */}
       </main>
+
+      {/* Footer (scroll ke end me aayega) */}
       <Footer />
-    </>
+    </div>
   );
 };
 

@@ -30,14 +30,15 @@ const Header = () => {
   };
 
   return (
-    <nav className="flex items-center justify-between bg-white shadow-md px-6 py-3 relative">
+    // <nav className="flex items-center justify-between bg-white shadow-md px-6 py-3 relative">
+    <nav className="fixed top-0 left-0 w-full h-[8%] z-50 flex items-center justify-between bg-teal-50 shadow-md px-6 py-3">
       {/* Logo */}
       <Link to="/" className="flex items-center gap-2">
         <img src={Logo} alt="PharmaNest Logo" className="h-10 w-18" />
       </Link>
 
       {/* Desktop Links */}
-      <div className="hidden md:flex gap-6 font-medium text-gray-700">
+      <div className="hidden md:flex gap-12 font-medium text-gray-700">
         <NavLink to="/" className={linkClass}>
           Home
         </NavLink>
@@ -54,19 +55,17 @@ const Header = () => {
           Contact
         </NavLink>
       </div>
-
       {/* Search Bar (Desktop only) */}
-      <div className="hidden md:flex items-center border rounded-lg overflow-hidden">
+      {/* <div className="hidden md:flex items-center border rounded-lg overflow-hidden">
         <input
           type="text"
           placeholder="Search medicines..."
           className="px-3 py-1.5 outline-none w-40 md:w-60"
         />
         <button className="bg-teal-700 text-white px-4 py-2">Search</button>
-      </div>
-
+      </div> */}
       {/* Cart + Auth */}
-      <div className="flex items-center gap-4 ml-4">
+      <div className="flex items-center gap-8 ml-4">
         {/* Cart */}
         <Link to="/cart" className="flex items-center gap-1">
           <BsCartPlus size={18} />
@@ -136,7 +135,7 @@ const Header = () => {
 
       {/* Mobile Sidebar */}
       {menuOpen && (
-        <div className="fixed inset-0 bg-gray-100 bg-opacity-40 z-50 flex">
+        <div className="fixed inset-0 bg-gray-100 bg-opacity-40 z-50 flex ">
           <div className="bg-white w-3/4 h-full p-6 flex flex-col gap-4 relative">
             {/* Close */}
             <button
@@ -147,7 +146,7 @@ const Header = () => {
             </button>
 
             {/* Search (Mobile) */}
-            <div className="flex items-center border rounded-lg overflow-hidden mb-4 mt-8">
+            {/* <div className="flex items-center border rounded-lg overflow-hidden mb-4 mt-8">
               <input
                 type="text"
                 placeholder="Search medicines..."
@@ -156,7 +155,7 @@ const Header = () => {
               <button className="bg-teal-700 text-white px-4 py-2">
                 Search
               </button>
-            </div>
+            </div> */}
 
             {/* Nav Links */}
             <NavLink

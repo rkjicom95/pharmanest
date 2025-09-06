@@ -18,6 +18,22 @@ export const registerUser = createAsyncThunk(
   }
 );
 
+// Verify OTP
+export const verifyOtp = createAsyncThunk(
+  "users/verifyOtp",
+  async (userData, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(`${API_URL}/verifyOtp`, userData);
+      // userData = { email, otp }
+      return response.data; // { success, message, token, user }
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data || { message: "OTP verification failed" }
+      );
+    }
+  }
+);
+
 // Login API
 export const loginUser = createAsyncThunk(
   "users/login",
@@ -199,6 +215,22 @@ const userSlice = createSlice({
         state.message = action.payload.message;
       })
       .addCase(resetPassword.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload?.message;
+      })
+      // ---------------- Verify OTP ----------------
+      .addCase(verifyOtp.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = false;
+      })
+      .addCase(verifyOtp.fulfilled, (state, action) => {
+        state.loading = false;
+        state.success = true;
+        state.users = action.payload.user; // backend से आया user object
+        state.token = action.payload.token; // login ho gaya
+      })
+      .addCase(verifyOtp.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload?.message;
       });

@@ -16,6 +16,7 @@ import ForgotPassword from "./authUI/forgotPassword/ForgotPassword";
 import ResetPassword from "./authUI/resetPassword/ResetPassword";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import VerifyOtp from "./authUI/verifyOtp/VerifyOtp";
 
 const App = () => {
   return (
@@ -40,6 +41,7 @@ const App = () => {
           <Route path="/logout" element={<Logout />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/resetPassword/:token" element={<ResetPassword />} />
+          <Route path="/verify-otp" element={<VerifyOtp />} />
         </Route>
       </Routes>
     </BrowserRouter>

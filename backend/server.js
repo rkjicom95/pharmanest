@@ -3,6 +3,8 @@ import dotenv from "dotenv";
 import cors from "cors";
 import connectDB from "./database/db.js";
 import router from "./routes/userRoute.js";
+import medicineRoutes from "./routes/medicineRoutes.js";
+import upload from "./middleware/upload.js";
 
 // config
 dotenv.config();
@@ -14,6 +16,9 @@ app.use(cors());
 
 // routes
 app.use("/api/users", router);
+app.use("/uploads", express.static("uploads"));
+// Medicine routes
+app.use("/api/medicines", medicineRoutes);
 
 // listen to port
 const PORT = process.env.PORT || 5000;

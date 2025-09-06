@@ -54,13 +54,17 @@ const Signup = () => {
     if (!validateForm()) return;
 
     try {
-      const result = await dispatch(registerUser(formData)).unwrap();
+      const { name, email, password } = formData;
+      const result = await dispatch(
+        registerUser({ name, email, password })
+      ).unwrap();
 
-      console.log("Signup Success ✅", formData);
-      showSuccess("You have signed up successfully 🎉");
-      navigate("/login");
+      console.log("Signup Success ✅", result);
+      showSuccess("OTP sent to your email. Please verify!");
+      navigate("/verify-otp", { state: { email } });
     } catch (err) {
       console.error("Signup Error ❌", err);
+      showError(err?.message || "Signup failed, try again.");
     }
   };
 
