@@ -45,14 +45,14 @@ const Header = () => {
         <NavLink to="/medicines" className={linkClass}>
           Medicines
         </NavLink>
-        <NavLink to="/categories" className={linkClass}>
+        {/* <NavLink to="/categories" className={linkClass}>
           Categories
-        </NavLink>
+        </NavLink> */}
         <NavLink to="/about" className={linkClass}>
           About
         </NavLink>
         <NavLink to="/contact" className={linkClass}>
-          Contact
+          Contact Us
         </NavLink>
       </div>
       {/* Search Bar (Desktop only) */}
@@ -172,13 +172,13 @@ const Header = () => {
             >
               Medicines
             </NavLink>
-            <NavLink
+            {/* <NavLink
               to="/categories"
               className={linkClass}
               onClick={() => setMenuOpen(false)}
             >
               Categories
-            </NavLink>
+            </NavLink> */}
             <NavLink
               to="/about"
               className={linkClass}

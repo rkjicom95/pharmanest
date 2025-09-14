@@ -55,7 +55,7 @@ const FAQSection = () => {
   };
 
   return (
-    <section className="w-full lg:px-8 py-8 text-sm p-2">
+    <section className="w-full lg:px-8 py-6 text-sm p-2">
       <h2 className="text-lg lg:text-xl font-medium text-center underline text-teal-600 mb-6">
         Frequently Asked Questions
       </h2>
@@ -64,7 +64,7 @@ const FAQSection = () => {
         {visibleFaqs.map((item, index) => (
           <div
             key={index}
-            className="border rounded-2xl p-5 shadow-sm hover:shadow-md transition bg-gray-100"
+            className="border rounded-2xl p-2 px-5 shadow-sm hover:shadow-md transition bg-gray-100"
           >
             {/* Question */}
             <button
@@ -83,7 +83,10 @@ const FAQSection = () => {
 
             {/* Answer */}
             {activeIndex === index && (
-              <p className="text-gray-600 mt-3 leading-relaxed">{item.a}</p>
+              <div>
+                <hr className="border-t border-gray-300 my-3" />
+                <p className="text-gray-600 mt-3 leading-relaxed">{item.a}</p>
+              </div>
             )}
           </div>
         ))}

@@ -1,256 +1,157 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import AboutPharmaNest from "../home/AboutPharmaNest";
+import { getMedicines } from "../../features/user/medicinesSlice";
+import { useNavigate } from "react-router-dom";
+const calculateDiscount = (price, oldPrice) => {
+  if (!oldPrice || oldPrice <= price) return 0;
+  return Math.round(((oldPrice - price) / oldPrice) * 100);
+};
 
-const medicines = [
-  {
-    id: 1,
-    name: "Paracetamol",
-    price: 50,
-    img: "/assets/med1.png",
-    category: "Tablets",
-  },
-  {
-    id: 2,
-    name: "Cough Syrup",
-    price: 120,
-    img: "/assets/med2.png",
-    category: "Syrups",
-  },
-  {
-    id: 3,
-    name: "Vitamin C",
-    price: 300,
-    img: "/assets/med3.png",
-    category: "Vitamins",
-  },
-  {
-    id: 4,
-    name: "Pain Relief Gel",
-    price: 150,
-    img: "/assets/med4.png",
-    category: "Skincare",
-  },
-  {
-    id: 5,
-    name: "Crocin",
-    price: 60,
-    img: "/assets/med5.png",
-    category: "Tablets",
-  },
-  {
-    id: 6,
-    name: "Insulin Injection",
-    price: 500,
-    img: "/assets/med6.png",
-    category: "Injections",
-  },
-  {
-    id: 7,
-    name: "Moisturizer",
-    price: 250,
-    img: "/assets/med7.png",
-    category: "Skincare",
-  },
-  {
-    id: 8,
-    name: "Liver Tonic",
-    price: 220,
-    img: "/assets/med8.png",
-    category: "Syrups",
-  },
-  {
-    id: 9,
-    name: "Antibiotic Tablet",
-    price: 180,
-    img: "/assets/med9.png",
-    category: "Tablets",
-  },
-  {
-    id: 10,
-    name: "Vitamin B12",
-    price: 320,
-    img: "/assets/med10.png",
-    category: "Injections",
-  },
-  {
-    id: 11,
-    name: "Protein Powder",
-    price: 900,
-    img: "/assets/med11.png",
-    category: "Vitamins",
-  },
-  {
-    id: 12,
-    name: "Thermometer",
-    price: 150,
-    img: "/assets/med12.png",
-    category: "Equipment",
-  },
-  {
-    id: 13,
-    name: "BP Monitor",
-    price: 1200,
-    img: "/assets/med13.png",
-    category: "Equipment",
-  },
-  {
-    id: 14,
-    name: "Oximeter",
-    price: 800,
-    img: "/assets/med14.png",
-    category: "Equipment",
-  },
-  {
-    id: 15,
-    name: "Aloe Vera Gel",
-    price: 180,
-    img: "/assets/med15.png",
-    category: "Personal Care",
-  },
-  {
-    id: 16,
-    name: "Ayurvedic Chyawanprash",
-    price: 350,
-    img: "/assets/med16.png",
-    category: "Ayurvedic",
-  },
-  {
-    id: 17,
-    name: "Baby Lotion",
-    price: 220,
-    img: "/assets/med17.png",
-    category: "Baby Care",
-  },
-  {
-    id: 18,
-    name: "First Aid Kit",
-    price: 500,
-    img: "/assets/med18.png",
-    category: "First Aid",
-  },
-  {
-    id: 19,
-    name: "Dental Floss",
-    price: 90,
-    img: "/assets/med19.png",
-    category: "Dental Care",
-  },
-];
-
-// 🔹 Reusable Category Component
 const MedicineCategory = ({ title, items }) => {
-  const [visibleCount, setVisibleCount] = useState(1); // default 4 items show
+  const navigate = useNavigate();
+  const [visibleCount, setVisibleCount] = useState(6);
 
-  const handleViewMore = () => {
-    setVisibleCount((prev) => prev + 4);
-  };
+  const handleViewMore = () => setVisibleCount((prev) => prev + 6);
 
   return (
-    <div className=" bg-teal-50">
-      <h2 className="text-[14px] lg:text-lg font-medium mb-4">{title}</h2>
+    <section
+      aria-labelledby={`category-${title}`}
+      className="bg-teal-50 mb-10 p-2 sm:p-4 rounded-lg"
+    >
+      <h2
+        id={`category-${title}`}
+        className="text-base sm:text-lg font-semibold mb-4 text-teal-700"
+      >
+        {title}
+      </h2>
 
-      {/* Responsive Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-        {items.slice(0, visibleCount).map((med) => {
-          // Example discount calculation (you can pass oldPrice in data)
-          const oldPrice = med.oldPrice || Math.round(med.price * 1.2); // 20% higher fake MRP
-          const discount = Math.round(
-            ((oldPrice - med.price) / oldPrice) * 100
-          );
+        {items
+          .slice(0, visibleCount)
+          .map(({ _id, img, name, price, oldPrice }) => {
+            const effectiveOldPrice = oldPrice || Math.round(price * 1.2);
+            const discount = calculateDiscount(price, effectiveOldPrice);
 
-          return (
-            <div
-              key={med.id}
-              className="bg-white shadow-md rounded-xl p-4 flex flex-col items-center text-center hover:shadow-lg transition relative"
-            >
-              {/* 🔹 Discount Badge */}
-              {discount > 0 && (
-                <span className="absolute top-2 left-2 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-md">
-                  {discount}% OFF
-                </span>
-              )}
-
-              {/* 🔹 Product Image */}
-              <img
-                src={med.img}
-                alt={med.name}
-                className="h-28 object-contain mb-3"
-              />
-
-              {/* 🔹 Product Name */}
-              <h3 className="mt-1 font-medium text-sm lg:text-base line-clamp-2">
-                {med.name}
-              </h3>
-
-              {/* 🔹 Price Section */}
-              <div className="mt-2">
-                <p className="text-gray-400 text-sm line-through">
-                  ₹{oldPrice}
+            return (
+              <article
+                key={_id}
+                className="relative bg-white rounded-xl shadow-md hover:shadow-2xl transform hover:-translate-y-2 hover:scale-[1.03] transition duration-300 ease-in-out flex flex-col items-center text-center p-4"
+              >
+                {discount > 0 && (
+                  <span className="absolute top-2 left-2 bg-red-500 text-white text-[10px] sm:text-xs font-bold px-2 py-1 rounded-md shadow z-10">
+                    {discount}% OFF
+                  </span>
+                )}
+                <img
+                  src={`http://localhost:8000/uploads/${img}`}
+                  alt={name}
+                  className="h-24 sm:h-28 object-contain mb-3 drop-shadow-md"
+                />
+                <h3 className="font-medium text-sm sm:text-base text-gray-800 line-clamp-2">
+                  {name}
+                </h3>
+                <p className="text-gray-400 text-xs sm:text-sm line-through">
+                  ₹{effectiveOldPrice}
                 </p>
-                <p className="text-lg font-semibold text-teal-600">
-                  ₹{med.price}
+                <p className="text-teal-600 font-bold text-lg sm:text-xl">
+                  ₹{price}
                 </p>
-              </div>
-
-              {/* 🔹 Add to Cart */}
-              <button className="mt-3 w-full px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 text-sm font-medium transition">
-                Add to Cart
-              </button>
-            </div>
-          );
-        })}
+                <button
+                  type="button"
+                  aria-label={`View details for ${name}`}
+                  className="absolute bottom-2 left-2 right-2 w-[90%] px-3 py-1.5 bg-gradient-to-r from-teal-600 to-teal-500 text-white rounded-lg text-xs sm:text-sm font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition duration-300"
+                  onClick={() => navigate(`/categories/${_id}`)}
+                >
+                  Details
+                </button>
+              </article>
+            );
+          })}
       </div>
 
-      {/* View More Button */}
       {visibleCount < items.length && (
         <div className="flex justify-end mt-4">
           <button
+            type="button"
             onClick={handleViewMore}
-            className="text-teal-700 hover:text-teal-800 hover:underline text-[14px] lg:text-[15px] font-medium"
+            className="text-teal-700 hover:underline text-sm sm:text-base"
+            aria-label={`View more items in ${title}`}
           >
             View More
           </button>
         </div>
       )}
-      <hr className="my-4 border-gray-300" />
-    </div>
+    </section>
   );
 };
 
 const Medicines = () => {
-  // 🔹 Unique categories auto-generate
-  const categories = [...new Set(medicines.map((m) => m.category))];
+  const dispatch = useDispatch();
+  const { medicines, loading, error } = useSelector((state) => state.medicine);
+
+  const [searchTerm, setSearchTerm] = useState("");
+
+  useEffect(() => {
+    dispatch(getMedicines());
+  }, [dispatch]);
+
+  const filteredMedicines = useMemo(() => {
+    return medicines.filter((m) =>
+      m.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [medicines, searchTerm]);
+
+  const categories = useMemo(() => {
+    return [...new Set(filteredMedicines.map((m) => m.category))];
+  }, [filteredMedicines]);
+
+  if (loading) return <p className="text-center mt-10">Loading medicines...</p>;
+  if (error)
+    return <p className="text-center mt-10 text-red-600">Error: {error}</p>;
 
   return (
-    <div className="bg-teal-50 p-6">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        {/* Left: Title */}
-        <h3 className="text-xl font-semibold text-teal-500">All Medicines</h3>
-
-        {/* Right: Search Bar */}
+    <main className="bg-teal-50 min-h-screen p-4 sm:p-6">
+      <header className="flex flex-col md:flex-row md:justify-between gap-4 mb-6">
+        <h3 className="text-xl sm:text-2xl font-bold text-teal-600 drop-shadow-sm">
+          All Medicines
+        </h3>
         <div className="flex w-full md:w-auto">
           <input
-            type="text"
+            type="search"
+            aria-label="Search medicines"
             placeholder="Search medicines..."
-            className="flex-1 md:w-60 px-3 py-2 border border-gray-300 rounded-l-lg outline-none focus:ring-0 focus:ring-teal-500"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="flex-1 md:w-60 px-3 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-0 focus:ring-teal-400 text-sm sm:text-base"
           />
-          <button className="bg-teal-600 text-white px-4 py-2 rounded-r-lg hover:bg-teal-700 transition">
-            Search
+          <button
+            type="button"
+            onClick={() => setSearchTerm("")}
+            className="bg-gradient-to-r from-teal-600 to-teal-500 text-white px-4 py-2 rounded-r-lg hover:from-teal-500 hover:to-teal-400 transition text-sm sm:text-base"
+            aria-label="Clear search"
+          >
+            Clear
           </button>
         </div>
-      </div>
+      </header>
+
       <hr className="my-4 border-gray-300" />
-      <div>
-        {categories.map((cat) => (
+
+      {categories.length > 0 ? (
+        categories.map((cat) => (
           <MedicineCategory
             key={cat}
             title={cat}
-            items={medicines.filter((m) => m.category === cat)}
+            items={filteredMedicines.filter((m) => m.category === cat)}
           />
-        ))}
-        <AboutPharmaNest />
-      </div>
-    </div>
+        ))
+      ) : (
+        <p className="text-center text-gray-600">No medicines found.</p>
+      )}
+
+      <AboutPharmaNest />
+    </main>
   );
 };
 

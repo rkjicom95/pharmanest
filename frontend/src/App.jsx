@@ -31,7 +31,7 @@ const App = () => {
           <Route path="/myorder" element={<MyOrder />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/medicines" element={<Medicines />} />
-          <Route path="/categories" element={<Categories />} />
+          <Route path="/categories/:id" element={<Categories />} />
         </Route>
 
         {/* ✅ Auth Layout Routes (no header/footer) */}

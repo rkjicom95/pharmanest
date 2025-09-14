@@ -1,21 +1,30 @@
 import Medicine from "../models/medicineModel.js";
 
-// @desc    Get all medicines
-// @route   GET /api/medicines
 export const getMedicines = async (req, res) => {
   try {
-    const medicines = await Medicine.find();
+    const medicines = await Medicine.find().sort({ createdAt: -1 });
     res.json(medicines);
   } catch (err) {
     res.status(500).json({ error: "Failed to fetch medicines" });
   }
 };
 
-// @desc    Add new medicine
-// @route   POST /api/medicines
 export const addMedicine = async (req, res) => {
   try {
-    const { name, price, category, oldPrice, description } = req.body;
+    const {
+      name,
+      price,
+      category,
+      oldPrice,
+      description,
+      companyName,
+      itemDetails,
+      status,
+      sideEffects,
+      dosage,
+      benefits,
+      warning,
+    } = req.body;
 
     // multer से आने वाला file
     const img = req.file ? req.file.filename : null;
@@ -27,6 +36,13 @@ export const addMedicine = async (req, res) => {
       oldPrice,
       description,
       img,
+      companyName,
+      itemDetails,
+      status,
+      sideEffects,
+      dosage,
+      warning,
+      benefits,
     });
 
     await med.save();
@@ -38,8 +54,6 @@ export const addMedicine = async (req, res) => {
   }
 };
 
-// @desc    Get medicines by category
-// @route   GET /api/medicines/category/:cat
 export const getMedicinesByCategory = async (req, res) => {
   try {
     const medicines = await Medicine.find({ category: req.params.cat });
@@ -49,13 +63,72 @@ export const getMedicinesByCategory = async (req, res) => {
   }
 };
 
-// @desc    Delete medicine
-// @route   DELETE /api/medicines/:id
 export const deleteMedicine = async (req, res) => {
   try {
-    await Medicine.findByIdAndDelete(req.params.id);
-    res.json({ message: "Medicine deleted" });
+    const deleted = await Medicine.findByIdAndDelete(req.params.id);
+
+    // अगर रिकॉर्ड नहीं मिला
+    if (!deleted) {
+      return res.status(404).json({ error: "Medicine not found" });
+    }
+
+    res.json({ message: "Medicine deleted", _id: deleted._id }); // ✅ अब deleted defined है
   } catch (err) {
+    console.error("❌ Delete Error:", err);
     res.status(500).json({ error: "Failed to delete medicine" });
+  }
+};
+
+export const editMedicine = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // अगर file upload हो रही है तो multer से आने वाली image use करो
+    const img = req.file ? req.file.filename : undefined;
+
+    // body से बाकी data लो
+    const {
+      name,
+      price,
+      category,
+      oldPrice,
+      description,
+      companyName,
+      itemDetails,
+      status,
+      sideEffects,
+      dosage,
+      benefits,
+      warning,
+    } = req.body;
+
+    const updatedMed = await Medicine.findByIdAndUpdate(
+      id,
+      {
+        ...(name && { name }),
+        ...(price && { price }),
+        ...(category && { category }),
+        ...(oldPrice && { oldPrice }),
+        ...(description && { description }),
+        ...(companyName && { companyName }),
+        ...(itemDetails && { itemDetails }),
+        ...(status && { status }),
+        ...(sideEffects && { sideEffects }),
+        ...(dosage && { dosage }),
+        ...(benefits && { benefits }),
+        ...(warning && { warning }),
+        ...(img && { img }),
+      },
+      { new: true }
+    );
+
+    if (!updatedMed) {
+      return res.status(404).json({ error: "Medicine not found" });
+    }
+
+    res.json(updatedMed);
+  } catch (err) {
+    console.error("❌ Error updating medicine:", err.message);
+    res.status(500).json({ error: "Failed to update medicine" });
   }
 };

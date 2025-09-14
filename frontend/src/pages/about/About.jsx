@@ -72,6 +72,41 @@ const About = () => {
   }, []);
   return (
     <div className="w-full bg-teal-50 ">
+     
+      <div className="w-full bg-teal-500 py-14 px-6 text-center">
+        <h2 className="text-2xl font-semibold text-white leading-relaxed w-full">
+          Our ultimate goal is to provide affordable healthcare to <br />
+          one and all.
+        </h2>
+      </div>
+      <div className="w-full bg-teal-50">
+        {/* Left Side - Text */}
+        <div className="p-4">
+          <h1 className="text-2xl font-semibold text-gray-800 mb-4">
+            Core Values of <span className="text-teal-500">PharmNest</span>
+          </h1>
+          <p className="text-[16px] text-gray-600 leading-relaxed">
+            To further our vision and goals, we came up with the following core
+            values. These principles act as the foundation of PharmNest and
+            guide every decision we make. They reflect who we are, how we serve
+            our customers, and how we shape the future of healthcare. Our values
+            drive us to maintain integrity, innovate continuously, and put
+            people first. They are highly instrumental in deciding where we want
+            to go and how we will get there, ensuring that we remain focused on
+            delivering accessible, affordable, and reliable healthcare solutions
+            for everyone.
+          </p>
+        </div>
+
+        {/* Right Side - Image */}
+        <div className="flex justify-center items-center">
+          <img
+            src={About1}
+            alt="Core Values"
+            className="w-full rounded-lg shadow-lg p-6 object-cover"
+          />
+        </div>
+      </div>
       <div className="p-4">
         <div className="border border-gray-400 p-4 rounded-lg">
           {/* Title */}
@@ -126,40 +161,6 @@ const About = () => {
               </p>
             </div>
           </div>
-        </div>
-      </div>
-      <div className="w-full bg-teal-500 py-14 px-6 text-center">
-        <h2 className="text-2xl font-semibold text-white leading-relaxed w-full">
-          Our ultimate goal is to provide affordable healthcare to <br />
-          one and all.
-        </h2>
-      </div>
-      <div className="w-full bg-teal-50">
-        {/* Left Side - Text */}
-        <div className="p-4">
-          <h1 className="text-2xl font-semibold text-gray-800 mb-4">
-            Core Values of <span className="text-teal-500">PharmNest</span>
-          </h1>
-          <p className="text-[16px] text-gray-600 leading-relaxed">
-            To further our vision and goals, we came up with the following core
-            values. These principles act as the foundation of PharmNest and
-            guide every decision we make. They reflect who we are, how we serve
-            our customers, and how we shape the future of healthcare. Our values
-            drive us to maintain integrity, innovate continuously, and put
-            people first. They are highly instrumental in deciding where we want
-            to go and how we will get there, ensuring that we remain focused on
-            delivering accessible, affordable, and reliable healthcare solutions
-            for everyone.
-          </p>
-        </div>
-
-        {/* Right Side - Image */}
-        <div className="flex justify-center items-center">
-          <img
-            src={About1}
-            alt="Core Values"
-            className="w-full rounded-lg shadow-lg p-6 object-cover"
-          />
         </div>
       </div>
       <AboutPharmaNest />
