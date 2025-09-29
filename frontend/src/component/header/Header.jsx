@@ -6,7 +6,7 @@ import Logo from "/assets/logo1.png";
 import { clearAuthData, getAuthData } from "../../utils/localStorage";
 import { showSuccess } from "../../utils/toastMessage";
 
-const Header = () => {
+const Header = ({ cartCount = 3 }) => {
   const navigate = useNavigate();
 
   const [menuOpen, setMenuOpen] = useState(false);
@@ -67,8 +67,18 @@ const Header = () => {
       {/* Cart + Auth */}
       <div className="flex items-center gap-8 ml-4">
         {/* Cart */}
-        <Link to="/cart" className="flex items-center gap-1">
-          <BsCartPlus size={18} />
+        <Link to="/cart" className="flex items-center gap-1 relative">
+          {/* Icon with Badge */}
+          <div className="relative">
+            <BsCartPlus size={22} className="text-gray-700" />
+            {cartCount > 0 && (
+              <span className="absolute -top-3 -right-2 bg-red-600 text-white text-xs font-bold rounded-full px-1.5 py-0.5">
+                {cartCount}
+              </span>
+            )}
+          </div>
+
+          {/* Text label */}
           <h4 className="text-gray-700 font-medium hidden md:block">Cart</h4>
         </Link>
 
@@ -92,12 +102,12 @@ const Header = () => {
                 >
                   Profile
                 </button>
-                <button
+                {/* <button
                   onClick={() => navigate("/settings")}
                   className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-teal-100"
                 >
                   Settings
-                </button>
+                </button> */}
                 <button
                   onClick={handleLogout}
                   className="block w-full text-left px-4 py-2 text-red-600 hover:bg-red-100"
@@ -215,7 +225,7 @@ const Header = () => {
                     >
                       Profile
                     </button>
-                    <button
+                    {/* <button
                       onClick={() => {
                         navigate("/settings");
                         setMenuOpen(false);
@@ -223,7 +233,7 @@ const Header = () => {
                       className="w-full text-left px-4 py-2 rounded-lg hover:bg-teal-100"
                     >
                       Settings
-                    </button>
+                    </button> */}
                     <button
                       onClick={handleLogout}
                       className="w-full text-left px-4 py-2 rounded-lg text-red-600 hover:bg-red-100"

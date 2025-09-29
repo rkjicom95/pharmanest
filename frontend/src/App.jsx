@@ -17,6 +17,9 @@ import ResetPassword from "./authUI/resetPassword/ResetPassword";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import VerifyOtp from "./authUI/verifyOtp/VerifyOtp";
+import Checkout from "./pages/checkout/Checkout";
+import Profile from "./authUI/profile/Profile";
+import Payment from "./pages/payment/Payment";
 
 const App = () => {
   return (
@@ -32,6 +35,9 @@ const App = () => {
           <Route path="/contact" element={<Contact />} />
           <Route path="/medicines" element={<Medicines />} />
           <Route path="/categories/:id" element={<Categories />} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/payment" element={<Payment />} />
         </Route>
 
         {/* ✅ Auth Layout Routes (no header/footer) */}

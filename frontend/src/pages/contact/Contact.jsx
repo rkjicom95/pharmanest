@@ -7,8 +7,12 @@ import {
   FaTwitter,
   FaLinkedin,
 } from "react-icons/fa";
+import { sendMessage } from "../../features/message/messageSlice";
+import { useDispatch } from "react-redux";
+import { showSuccess } from "../../../../admin-panel/src/utils/toastMessage";
 
 const Contact = () => {
+  const dispatch = useDispatch();
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -22,8 +26,15 @@ const Contact = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    alert(`Thanks ${form.name}, your message has been sent!`);
-    setForm({ name: "", email: "", subject: "", message: "" });
+    console.log("form data sent", form);
+    dispatch(sendMessage(form));
+    showSuccess("Message sent successfully");
+    setForm({
+      name: "",
+      email: "",
+      subject: "",
+      message: "",
+    });
   };
 
   return (

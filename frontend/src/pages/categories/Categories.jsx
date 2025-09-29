@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from "react";
 import FAQSection from "../home/FAQSection";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { getMedicines } from "../../features/user/medicinesSlice.js";
+import { addToCart } from "../../features/cart/cartSlice.js";
 import { useDispatch, useSelector } from "react-redux";
 import Review from "./Review.jsx";
 import AddReview from "./AddReview.jsx";
+import { getUser } from "../../utils/localStorage.js";
+import { showSuccess } from "../../utils/toastMessage.js";
 
 const Categories = () => {
+  const navigate = useNavigate();
   const { id } = useParams();
   const dispatch = useDispatch();
   const [quantity, setQuantity] = useState(1);
@@ -32,6 +36,34 @@ const Categories = () => {
           ((medicine.oldPrice - medicine.price) / medicine.oldPrice) * 100
         )
       : 0;
+
+  // 🟢 Handle Add to Cart
+  const handleAddToCart = async () => {
+    if (!medicine) return;
+
+    // const userId = "USER123";
+    const currentUser = getUser();
+    const userId = currentUser ? currentUser.id : null;
+
+    const cartData = {
+      medicineId: medicine._id,
+      name: medicine.name,
+      price: medicine.price,
+      img: medicine.img,
+      qty: quantity,
+    };
+
+    try {
+      const response = await dispatch(
+        addToCart({ userId, medicine: cartData })
+      ).unwrap();
+      console.log("✅ Cart updated:", response); // 🔗 API Response
+      showSuccess("Add to cart successful");
+      navigate("/cart");
+    } catch (error) {
+      console.error("❌ Failed to add to cart:", error);
+    }
+  };
 
   if (!medicine) {
     return (
@@ -111,7 +143,10 @@ const Categories = () => {
                   Tomorrow, before 2:00 pm
                 </span>
               </p>
-              <button className="bg-teal-600 text-white px-8 py-2 rounded-lg font-medium hover:bg-teal-700 transition">
+              <button
+                onClick={handleAddToCart}
+                className="bg-teal-600 text-white px-8 py-2 rounded-lg font-medium hover:bg-teal-700 transition"
+              >
                 Add to Cart
               </button>
             </div>

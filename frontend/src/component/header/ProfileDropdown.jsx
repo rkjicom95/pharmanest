@@ -27,12 +27,12 @@ const ProfileDropdown = () => {
           >
             Profile
           </button>
-          <button
+          {/* <button
             onClick={() => dispatch(logout())}
             className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-teal-100"
           >
             Settings
-          </button>
+          </button> */}
           <button
             onClick={() => dispatch(logout())}
             className="block w-full text-left px-4 py-2 text-red-600 hover:bg-red-100"
