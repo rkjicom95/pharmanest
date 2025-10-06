@@ -71,3 +71,14 @@ export const removeFromCart = async (req, res) => {
     res.status(500).json({ error: "Failed to remove item" });
   }
 };
+
+// backend/routes/cart.js
+export const clearCart = async (req, res) => {
+  const { userId } = req.body;
+  try {
+    await Cart.findOneAndUpdate({ userId }, { items: [] });
+    res.json({ success: true, items: [] });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};

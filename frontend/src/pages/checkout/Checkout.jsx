@@ -7,6 +7,7 @@ import {
   updateAddress,
   deleteAddress,
 } from "../../features/address/addressSlice.js";
+import { createOrder } from "../../features/order/orderSlice.js";
 import { getUser } from "../../utils/localStorage.js";
 
 const Checkout = () => {
@@ -103,18 +104,67 @@ const Checkout = () => {
   };
 
   // Proceed to Payment
+  // const handleProceedToPayment = () => {
+  //   if (!selectedAddress) {
+  //     return alert("❌ Please select a delivery address");
+  //   }
+
+  //   // Save selectedAddress + orderSummary in localStorage
+  //   localStorage.setItem(
+  //     "orderInfo",
+  //     JSON.stringify({ checkoutData, selectedAddress })
+  //   );
+
+  //   navigate("/payment");
+  // };
+
+  // Proceed to Payment
   const handleProceedToPayment = () => {
     if (!selectedAddress) {
       return alert("❌ Please select a delivery address");
     }
 
-    // Save selectedAddress + orderSummary in localStorage
-    localStorage.setItem(
-      "orderInfo",
-      JSON.stringify({ checkoutData, selectedAddress })
-    );
+    const currentUser = getUser();
+    if (!currentUser?.id) {
+      return alert("❌ Please login first!");
+    }
 
-    navigate("/payment");
+    // ✅ Prepare order payload
+    const orderPayload = {
+      userId: currentUser.id,
+      items: checkoutData.cartItems.map((item) => ({
+        name: item.name,
+        price: item.price,
+        qty: item.qty,
+        _id: item._id,
+      })),
+      totalAmount: checkoutData.total,
+      address: selectedAddress,
+      payment: { method: "COD", status: "Pending" },
+    };
+
+    // ✅ Dispatch order creation
+    dispatch(createOrder(orderPayload))
+      .unwrap()
+      .then((res) => {
+        console.log("Order created:", res);
+
+        // ✅ Save info for Payment page (UI use karega)
+        localStorage.setItem(
+          "orderInfo",
+          JSON.stringify({
+            checkoutData, // 👈 Total, cart items etc.
+            selectedAddress, // 👈 Delivery address
+            createdOrder: res, // 👈 Backend se order response bhi store kar lo (optional)
+          })
+        );
+
+        navigate("/payment"); // order ke baad payment page
+      })
+      .catch((err) => {
+        console.error("Order failed:", err);
+        alert("❌ Failed to create order");
+      });
   };
 
   return (

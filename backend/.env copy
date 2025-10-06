@@ -1,0 +1,7 @@
+PORT=8000
+MONGO_URL=mongodb+srv://rkjicom95:Admin%40123@cluster0.gpf5s4z.mongodb.net/noteapp?retryWrites=true&w=majority&appName=Cluster0
+MAIL_USER=rkjicom95@gmail.com
+MAIL_PASS=xscj bvgk mzfk xhph
+JWT_SECRET=supersecret123
+VITE_GOOGLE_CLIENT_ID=242734724735-bttnoop7qkmhmm0s4limpqrgohtgo6su.apps.googleusercontent.comv
+

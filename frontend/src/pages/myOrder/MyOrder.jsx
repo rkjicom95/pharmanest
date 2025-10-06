@@ -1,26 +1,19 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { fetchOrders } from "../../features/order/orderSlice.js";
+import { getUser } from "../../utils/localStorage.js";
 
 const MyOrder = () => {
-  const [orders, setOrders] = useState([]);
+  const dispatch = useDispatch();
+  const { orders, status, error } = useSelector((state) => state.order);
+
+  const currentUser = getUser();
 
   useEffect(() => {
-    // Hard-coded sample orders
-    const sampleOrders = [
-      {
-        id: "ORD001",
-        items: [
-          { id: 1, name: "Cough Syrup", price: 120, qty: 2 },
-          { id: 2, name: "Vitamin C Tablet", price: 60, qty: 1 },
-        ],
-        total: 300,
-        payment: "Cash on Delivery",
-        address: "Rohit Kumar, Noida, Uttar Pradesh, 201301",
-        status: "Processing",
-        date: "2025-09-14T10:30:00",
-      },
-    ];
-    setOrders(sampleOrders);
-  }, []);
+    if (currentUser?.id) {
+      dispatch(fetchOrders(currentUser.id));
+    }
+  }, [dispatch, currentUser?.id]);
 
   const formatDate = (dateStr) => {
     const date = new Date(dateStr);
@@ -50,12 +43,24 @@ const MyOrder = () => {
     );
   };
 
+  if (!currentUser?.id) {
+    return (
+      <div className="p-6 text-center">
+        <p className="text-red-500">❌ Please login to see your orders</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="bg-teal-50">
+    <div className="bg-teal-50 min-h-screen">
       <div className="p-6 max-w-6xl mx-auto space-y-6">
         <h2 className="text-3xl font-bold mb-6">My Orders</h2>
 
-        {orders.length === 0 ? (
+        {status === "loading" ? (
+          <p className="text-gray-500 text-lg">Loading orders...</p>
+        ) : error ? (
+          <p className="text-red-500 text-lg">Error: {error}</p>
+        ) : orders.length === 0 ? (
           <p className="text-gray-500 text-lg">You have no orders yet.</p>
         ) : (
           orders
@@ -63,17 +68,17 @@ const MyOrder = () => {
             .reverse()
             .map((order) => (
               <div
-                key={order.id}
+                key={order._id}
                 className="bg-white shadow-md rounded-lg border p-6 space-y-4"
               >
                 {/* Header: Order ID & Status */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
                   <div>
                     <h3 className="text-lg font-semibold">
-                      Order ID: {order.id}
+                      Order ID: {order._id.slice(-6).toUpperCase()}
                     </h3>
                     <p className="text-gray-500 text-sm mt-1">
-                      {formatDate(order.date)}
+                      {formatDate(order.createdAt)}
                     </p>
                   </div>
                   <div className="mt-2 md:mt-0">
@@ -95,7 +100,7 @@ const MyOrder = () => {
                     <tbody>
                       {order.items.map((item) => (
                         <tr
-                          key={item.id}
+                          key={item._id || item.productId || item.id}
                           className="border-b last:border-b-0 hover:bg-gray-50 transition"
                         >
                           <td className="py-2 px-3">{item.name}</td>
@@ -113,7 +118,7 @@ const MyOrder = () => {
                 {/* Summary */}
                 <div className="flex justify-end border-t pt-3 mt-3">
                   <p className="font-bold text-lg">
-                    Total Payable: ₹{order.total}
+                    Total Payable: ₹{order.totalAmount}
                   </p>
                 </div>
 
@@ -121,11 +126,11 @@ const MyOrder = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-gray-600 mt-2">
                   <p>
                     <span className="font-semibold">Payment:</span>{" "}
-                    {order.payment}
+                    {order.payment?.method} ({order.payment?.status})
                   </p>
                   <p>
                     <span className="font-semibold">Address:</span>{" "}
-                    {order.address}
+                    {`${order.address.name}, ${order.address.street}, ${order.address.city}, ${order.address.state} - ${order.address.pincode}`}
                   </p>
                 </div>
               </div>

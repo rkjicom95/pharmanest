@@ -38,6 +38,14 @@ export const removeFromCart = createAsyncThunk(
     return res.data;
   }
 );
+// 🟣 Clear Cart (पूरी cart empty करो - Order place hone ke baad)
+export const clearCartAsync = createAsyncThunk("cart/clear", async (userId) => {
+  const res = await axios.post(
+    `${import.meta.env.VITE_API_MED_URL}/cart/clear`,
+    { userId }
+  );
+  return res.data; // backend से empty cart आएगी
+});
 
 const cartSlice = createSlice({
   name: "cart",
@@ -46,7 +54,12 @@ const cartSlice = createSlice({
     status: "idle",
     error: null,
   },
-  reducers: {},
+  reducers: {
+    // ✅ Order place hone ke baad cart ko empty karne ke liye
+    clearCart: (state) => {
+      state.items = [];
+    },
+  },
   extraReducers: (builder) => {
     builder
       // 📥 Fetch Cart
@@ -79,7 +92,7 @@ const cartSlice = createSlice({
       .addCase(addToCart.fulfilled, (state, action) => {
         // ✅ Backend से आया data → केवल sync करें
         state.items = action.payload.items || state.items;
-      })  
+      })
       .addCase(addToCart.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message;
@@ -89,8 +102,13 @@ const cartSlice = createSlice({
       .addCase(removeFromCart.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.items = action.payload.items || [];
+      })
+
+      // 🟣 Clear Cart from backend
+      .addCase(clearCartAsync.fulfilled, (state, action) => {
+        state.items = action.payload.items || [];
       });
   },
 });
-
+export const { clearCart } = cartSlice.actions;
 export default cartSlice.reducer;

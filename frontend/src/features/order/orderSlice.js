@@ -4,17 +4,23 @@ import axios from "axios";
 // 🟢 Create Order
 export const createOrder = createAsyncThunk(
   "order/createOrder",
-  async ({ userId, items, total }, { rejectWithValue }) => {
+  async (
+    { userId, items, totalAmount, address, payment },
+    { rejectWithValue }
+  ) => {
     try {
       const res = await axios.post(
         `${import.meta.env.VITE_API_MED_URL}/orders/create`,
         {
           userId,
           items,
-          total,
+          totalAmount,
+          address,
+          payment,
+          status: "Processing", // default status
         }
       );
-      return res.data; // ✅ backend से पूरा order object return होगा
+      return res.data; // backend se pura order object return hoga
     } catch (err) {
       return rejectWithValue(
         err.response?.data?.message || "Failed to create order"
@@ -29,12 +35,30 @@ export const fetchOrders = createAsyncThunk(
   async (userId, { rejectWithValue }) => {
     try {
       const res = await axios.get(
-        `${import.meta.env.VITE_API_MED_URL}/orders/${userId}`
+        `${import.meta.env.VITE_API_MED_URL}/orders/user/${userId}`
       );
-      return res.data; // ✅ backend orders की array return करेगा
+      return res.data; // backend orders array return karega
     } catch (err) {
       return rejectWithValue(
         err.response?.data?.message || "Failed to fetch orders"
+      );
+    }
+  }
+);
+
+// 🟣 Update Order Status
+export const updateOrder = createAsyncThunk(
+  "order/updateOrder",
+  async ({ orderId, status }, { rejectWithValue }) => {
+    try {
+      const res = await axios.put(
+        `${import.meta.env.VITE_API_MED_URL}/orders/${orderId}/status`,
+        { status }
+      );
+      return res.data; // updated order return karega
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to update order"
       );
     }
   }
@@ -45,7 +69,7 @@ const orderSlice = createSlice({
   initialState: {
     orders: [],
     currentOrder: null,
-    status: "idle",
+    status: "idle", // idle | loading | succeeded | failed
     error: null,
   },
   reducers: {
@@ -61,8 +85,8 @@ const orderSlice = createSlice({
       })
       .addCase(createOrder.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.currentOrder = action.payload; // ✅ नया order save कर दो
-        state.orders.push(action.payload); // optional
+        state.currentOrder = action.payload;
+        state.orders.push(action.payload);
       })
       .addCase(createOrder.rejected, (state, action) => {
         state.status = "failed";
@@ -78,6 +102,29 @@ const orderSlice = createSlice({
         state.orders = action.payload;
       })
       .addCase(fetchOrders.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload;
+      })
+
+      // 📌 Update Order
+      .addCase(updateOrder.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(updateOrder.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        // orders list me bhi update karo
+        const index = state.orders.findIndex(
+          (o) => o._id === action.payload._id
+        );
+        if (index !== -1) {
+          state.orders[index] = action.payload;
+        }
+        // currentOrder bhi update
+        if (state.currentOrder?._id === action.payload._id) {
+          state.currentOrder = action.payload;
+        }
+      })
+      .addCase(updateOrder.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload;
       });

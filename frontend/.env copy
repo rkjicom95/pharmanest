@@ -1,0 +1,4 @@
+VITE_API_URL=http://localhost:8000/api/users
+VITE_API_MED_URL=http://localhost:8000/api
+
+VITE_GOOGLE_CLIENT_ID=242734724735-bttnoop7qkmhmm0s4limpqrgohtgo6su.apps.googleusercontent.com

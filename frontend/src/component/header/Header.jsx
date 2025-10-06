@@ -5,12 +5,18 @@ import { FaUserCircle, FaBars, FaTimes } from "react-icons/fa";
 import Logo from "/assets/logo1.png";
 import { clearAuthData, getAuthData } from "../../utils/localStorage";
 import { showSuccess } from "../../utils/toastMessage";
+import { useSelector } from "react-redux";
+import { fetchCart } from "../../features/cart/cartSlice";
 
-const Header = ({ cartCount = 3 }) => {
+const Header = () => {
   const navigate = useNavigate();
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [mobileProfileOpen, setMobileProfileOpen] = useState(false);
+
+  const { items } = useSelector((state) => state.cart);
+  console.log("itemssssss..", items);
+  const cartCount = items.length;
 
   // User info from localStorage
   const auth = getAuthData();
